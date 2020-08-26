@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # coding: utf-8
 
 import os
@@ -18,7 +18,7 @@ from tornado.options import define, options
 define("port", default=int(os.environ.get('PORT', 8200)), help="Run server on a specific port", type=int) 
 
 def get_bundle_id_from_plist_string(s):
-    v = plistlib.readPlistFromString(s)
+    v = plistlib.loads(s)
     return v['items'][0]['metadata']['bundle-identifier']
 
 class MainHandler(tornado.web.RequestHandler):
@@ -65,6 +65,7 @@ class PlistStoreHandler(tornado.web.RequestHandler):
 def make_app(debug=True):
     return tornado.web.Application([
         (r"/", MainHandler),
+        (r"/plist", PlistStoreHandler),
         (r"/plist/?", PlistStoreHandler),
         (r"/plist/(.+)", PlistStoreHandler),
     ], debug=debug)
@@ -76,5 +77,5 @@ if __name__ == "__main__":
     app = make_app(debug=bool(os.getenv('DEBUG')))
     server = tornado.httpserver.HTTPServer(app, xheaders=True)
     server.listen(options.port)
-    print 'Listening on port %d' % options.port
+    print('Listening on port {}'.format(options.port))
     ioloop.IOLoop.current().start()
